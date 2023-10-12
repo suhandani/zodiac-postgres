@@ -1,113 +1,151 @@
-import Image from 'next/image'
+"use client";
+import axios from "axios";
+import { useState } from "react";
 
 export default function Home() {
+  const [nama, setNama] = useState("");
+  const [tanggal, setTanggal] = useState(0);
+  const [bulan, setBulan] = useState(0);
+  const [tahun, setTahun] = useState(0);
+  const [visible, setVisible] = useState(false);
+  const [zodiak, setZodiak] = useState("");
+  const today = new Date();
+
+  const handleChangeNama = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setNama(e.target.value);
+  };
+  const handleChangeTanggal = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setTanggal(+e.target.value);
+  };
+  const handleChangeBulan = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setBulan(+e.target.value);
+  };
+  const handleChangeTahun = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setTahun(+e.target.value);
+  };
+
+  const birthdate = new Date(tahun, bulan - 1, tanggal);
+  const ageInMilliseconds = today.getTime() - birthdate.getTime();
+  let ageInYears = Math.floor(
+    ageInMilliseconds / (1000 * 60 * 60 * 24 * 365.25)
+  );
+
+  let ageMonths = today.getMonth() - birthdate.getMonth();
+  let ageDays = today.getDate() - birthdate.getDate();
+
+  if (ageMonths < 0 || (ageMonths === 0 && ageDays < 0)) {
+    ageInYears;
+    ageMonths += 12;
+  } else if (ageDays < 0) {
+    ageDays = today.getDate();
+  }
+
+  const handleSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    const re = /^[a-zA-Z]*$/;
+    if (re.test(nama) == false || nama == "") {
+      alert("Name Can't Empty & use Special Character");
+    } else if (tanggal == 0) {
+      alert("Tanggal Can't Empty");
+    } else if (bulan == 0) {
+      alert("Bulan Can't Empty");
+    } else if (tahun == 0) {
+      alert("Tahun Can't Empty");
+    } else {
+      const zodiak = await axios
+        .get(`http://localhost:3000/api/get`, {
+          params: {
+            date: new Date(1900, bulan - 1, tanggal),
+          },
+        })
+        .then((res) => res.data);
+      console.log(zodiak);
+      setZodiak(zodiak);
+      setVisible(true);
+    }
+  };
+
+  const closeModal = () => {
+    setVisible(false);
+  };
+
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">app/page.tsx</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:h-auto lg:w-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
+      <div className="flex flex-row">
+        <div className="flex flex-col">
+          <div className="flex py-3 self-center">
+            <div className="p-2.5">Nama : </div>
+            <div>
+              <input
+                type="text"
+                id="name"
+                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                placeholder="Nama"
+                onChange={handleChangeNama}
+              ></input>
+            </div>
+          </div>
+          <div className="flex py-3 self-center">
+            <div className="p-2.5">Tanggal Lahir : </div>
+            <div>
+              <input
+                type="text"
+                id="tanggal"
+                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                placeholder="Tanggal"
+                onChange={handleChangeTanggal}
+              ></input>{" "}
+              /{" "}
+              <input
+                type="text"
+                id="bulan"
+                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                placeholder="Bulan"
+                onChange={handleChangeBulan}
+              ></input>{" "}
+              /{" "}
+              <input
+                type="text"
+                id="tahun"
+                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                placeholder="Tahun"
+                onChange={handleChangeTahun}
+              ></input>
+            </div>
+          </div>
+          <div className="flex py-3 self-center">
+            <button
+              className="bg-black text-white p-2.5 rounded-md text-s"
+              onClick={handleSubmit}
+            >
+              Submit
+            </button>
+          </div>
+          {visible == true && (
+            <div className="flex justify-center items-center bg-slate-700 fixed left-0 top-0 h-full w-full bg-opacity-50">
+              <div id="print" className="flex flex-col self-center py-10">
+                <div className="bg-white py-8 px-14 flex flex-col rounded-xl z-20">
+                  <div className="my-4 flex flex-col">
+                    <div>Hallo {nama},</div>
+                    <div>Usia anda Saat ini adalah :</div>
+                    <div>{ageInYears} Tahun,</div>
+                    <div>{ageMonths} Bulan,</div>
+                    <div>{ageDays} Hari,</div>
+                    <div>Bintang anda adalah</div>
+                    <div>{zodiak}</div>
+                    <button
+                      className="bg-red-500 text-white py-1 px-4 rounded-md text-s m-4"
+                      onClick={closeModal}
+                    >
+                      Close
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
-
-      <div className="relative flex place-items-center before:absolute before:h-[300px] before:w-[480px] before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-[240px] after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700 before:dark:opacity-10 after:dark:from-sky-900 after:dark:via-[#0141ff] after:dark:opacity-40 before:lg:h-[360px] z-[-1]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className="mb-32 grid text-center lg:max-w-5xl lg:w-full lg:mb-0 lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Docs{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Learn{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Templates{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Explore the Next.js 13 playground.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Deploy{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
     </main>
-  )
+  );
 }
